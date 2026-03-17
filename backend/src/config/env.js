@@ -1,0 +1,39 @@
+﻿import dotenv from "dotenv";
+import { z } from "zod";
+
+dotenv.config();
+
+const envSchema = z.object({
+  NODE_ENV: z.string().default("development"),
+  PORT: z.coerce.number().int().positive().default(4000),
+  MONGODB_URI: z.string().min(1),
+  CLIENT_ORIGIN: z.string().url(),
+  AUTH_JWT_SECRET: z.string().min(32),
+  AUTH_JWT_EXPIRES_IN: z.string().default("7d"),
+  AUTH_COOKIE_NAME: z.string().default("qp_token"),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_CALLBACK_URL: z.string().optional(),
+  GITHUB_CLIENT_ID: z.string().optional(),
+  GITHUB_CLIENT_SECRET: z.string().optional(),
+  GITHUB_CALLBACK_URL: z.string().optional()
+});
+
+const parsed = envSchema.safeParse(process.env);
+
+if (!parsed.success) {
+  // eslint-disable-next-line no-console
+  console.error("Invalid/missing environment variables.");
+  // eslint-disable-next-line no-console
+  console.error("Create `backend/.env` by copying `backend/.env.example`, then fill required values.");
+  // eslint-disable-next-line no-console
+  console.error("Problems:");
+  for (const issue of parsed.error.issues) {
+    const key = issue.path.join(".") || "(root)";
+    // eslint-disable-next-line no-console
+    console.error(`- ${key}: ${issue.message}`);
+  }
+  process.exit(1);
+}
+
+export const env = parsed.data;
