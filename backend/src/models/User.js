@@ -14,12 +14,23 @@ const userSchema = new mongoose.Schema(
 
     roles: { type: [String], default: ["user"] },
 
-    xp: { type: Number, default: 0 },
-    streak: { type: Number, default: 0 },
-    accuracy: { type: Number, default: 0 },
-    quizzesTaken: { type: Number, default: 0 }
+    xp: { type: Number, default: 0, min: 0, index: true },
+    streak: { type: Number, default: 0, min: 0 },
+    lastQuizAt: { type: Date, default: null },
+
+    quizzesTaken: { type: Number, default: 0, min: 0 },
+    totalCorrect: { type: Number, default: 0, min: 0 },
+    totalAnswered: { type: Number, default: 0, min: 0 }
   },
   { timestamps: true }
 );
+
+userSchema.virtual("accuracy").get(function accuracy() {
+  if (!this.totalAnswered) return 0;
+  return Math.round((this.totalCorrect / this.totalAnswered) * 100);
+});
+
+userSchema.set("toJSON", { virtuals: true });
+userSchema.set("toObject", { virtuals: true });
 
 export const User = mongoose.model("User", userSchema);

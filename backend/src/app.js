@@ -1,4 +1,4 @@
-import express from "express";
+﻿import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -6,6 +6,9 @@ import cookieParser from "cookie-parser";
 
 import { env } from "./config/env.js";
 import { authRouter } from "./routes/auth.routes.js";
+import { quizRouter } from "./routes/quiz.routes.js";
+import { leaderboardRouter } from "./routes/leaderboard.routes.js";
+import { dashboardRouter } from "./routes/dashboard.routes.js";
 import { configureOAuth } from "./services/oauth.js";
 
 export function createApp() {
@@ -25,7 +28,11 @@ export function createApp() {
   configureOAuth(app);
 
   app.get("/health", (_req, res) => res.json({ ok: true }));
+
   app.use("/api/auth", authRouter);
+  app.use("/api/quizzes", quizRouter);
+  app.use("/api/leaderboard", leaderboardRouter);
+  app.use("/api/dashboard", dashboardRouter);
 
   app.use((err, _req, res, _next) => {
     const message = err?.message || "INTERNAL_ERROR";
@@ -36,4 +43,3 @@ export function createApp() {
 
   return app;
 }
-
